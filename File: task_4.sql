@@ -1,55 +1,28 @@
--- alx_book_store.sql
+import mysql.connector
+from mysql.connector import Error
 
--- CREATE DATABASE
-CREATE DATABASE IF NOT EXISTS alx_book_store;
-USE alx_book_store;
+try:
+    # Connect to MySQL Server
+    connection = mysql.connector.connect(
+        host='localhost',
+        user='your_mysql_username',
+        password='your_mysql_password'
+    )
 
--- AUTHORS TABLE
-CREATE TABLE AUTHORS (
-    AUTHOR_ID INT AUTO_INCREMENT PRIMARY KEY,
-    AUTHOR_NAME VARCHAR(215) NOT NULL
-);
+    if connection.is_connected():
+        cursor = connection.cursor()
+        cursor.execute("CREATE DATABASE IF NOT EXISTS alx_book_store")
+        print("Database 'alx_book_store' created successfully!")
 
--- BOOKS TABLE
-CREATE TABLE BOOKS (
-    BOOK_ID INT AUTO_INCREMENT PRIMARY KEY,
-    TITLE VARCHAR(130) NOT NULL,
-    AUTHOR_ID INT,
-    PRICE DOUBLE,
-    PUBLICATION_DATE DATE,
-    FOREIGN KEY (AUTHOR_ID) REFERENCES AUTHORS(AUTHOR_ID)
-);
+except mysql.connector.Error as err:
+    print(f"Error while connecting to MySQL: {err}")
 
--- CUSTOMERS TABLE
-CREATE TABLE CUSTOMERS (
-    CUSTOMER_ID INT AUTO_INCREMENT PRIMARY KEY,
-    CUSTOMER_NAME VARCHAR(215) NOT NULL,
-    EMAIL VARCHAR(215),
-    ADDRESS TEXT
-);
-
--- ORDERS TABLE
-CREATE TABLE ORDERS (
-    ORDER_ID INT AUTO_INCREMENT PRIMARY KEY,
-    CUSTOMER_ID INT,
-    ORDER_DATE DATE,
-    FOREIGN KEY (CUSTOMER_ID) REFERENCES CUSTOMERS(CUSTOMER_ID)
-);
-
--- ORDER_DETAILS TABLE
-CREATE TABLE ORDER_DETAILS (
-    ORDERDETAILID INT AUTO_INCREMENT PRIMARY KEY,
-    ORDER_ID INT,
-    BOOK_ID INT,
-    QUANTITY DOUBLE,
-    FOREIGN KEY (ORDER_ID)
-        REFERENCES ORDERS (ORDER_ID),
-    FOREIGN KEY (BOOK_ID)
-        REFERENCES BOOKS (BOOK_ID)
-        );
-
-
+finally:
+    if 'connection' in locals() and connection.is_connected():
+        cursor.close()
+        connection.close()
 SELECT COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, COLUMN_KEY, EXTRA
 FROM INFORMATION_SCHEMA.COLUMNS
 WHERE TABLE_NAME = 'books'
   AND TABLE_SCHEMA = DATABASE();
+
